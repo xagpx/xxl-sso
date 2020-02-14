@@ -19,7 +19,7 @@ public class XxlSsoUser implements Serializable {
     private String version;
     private int expireMinute;
     private long expireFreshTime;
-
+    private String ip;
 
     // set get
     public String getUserid() {
@@ -69,5 +69,13 @@ public class XxlSsoUser implements Serializable {
     public void setExpireFreshTime(long expireFreshTime) {
         this.expireFreshTime = expireFreshTime;
     }
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 
 }

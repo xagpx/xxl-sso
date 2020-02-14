@@ -33,7 +33,6 @@ public class SsoWebLoginHelper {
         }
 
         SsoLoginStore.put(storeKey, xxlUser);
-        CookieUtil.set(response, Conf.SSO_SESSIONID, sessionId, ifRemember);
     }
 
     /**
@@ -42,20 +41,14 @@ public class SsoWebLoginHelper {
      * @param request
      * @param response
      */
-    public static void logout(HttpServletRequest request,
-                              HttpServletResponse response) {
+    public static void logout(String sessionId) {
 
-        String cookieSessionId = CookieUtil.getValue(request, Conf.SSO_SESSIONID);
-        if (cookieSessionId==null) {
-            return;
-        }
 
-        String storeKey = SsoSessionIdHelper.parseStoreKey(cookieSessionId);
+        String storeKey = SsoSessionIdHelper.parseStoreKey(sessionId);
         if (storeKey != null) {
             SsoLoginStore.remove(storeKey);
         }
 
-        CookieUtil.remove(request, response, Conf.SSO_SESSIONID);
     }
 
 
@@ -67,29 +60,13 @@ public class SsoWebLoginHelper {
      * @param response
      * @return
      */
-    public static XxlSsoUser loginCheck(HttpServletRequest request, HttpServletResponse response){
-
-        String cookieSessionId = CookieUtil.getValue(request, Conf.SSO_SESSIONID);
+    public static XxlSsoUser loginCheck(String  sessionId){
 
         // cookie user
-        XxlSsoUser xxlUser = SsoTokenLoginHelper.loginCheck(cookieSessionId);
+        XxlSsoUser xxlUser = SsoTokenLoginHelper.loginCheck(sessionId);
         if (xxlUser != null) {
             return xxlUser;
         }
-
-        // redirect user
-
-        // remove old cookie
-        SsoWebLoginHelper.removeSessionIdByCookie(request, response);
-
-        // set new cookie
-        String paramSessionId = request.getParameter(Conf.SSO_SESSIONID);
-        xxlUser = SsoTokenLoginHelper.loginCheck(paramSessionId);
-        if (xxlUser != null) {
-            CookieUtil.set(response, Conf.SSO_SESSIONID, paramSessionId, false);    // expire when browser close （client cookie）
-            return xxlUser;
-        }
-
         return null;
     }
 
@@ -101,7 +78,7 @@ public class SsoWebLoginHelper {
      * @param response
      */
     public static void removeSessionIdByCookie(HttpServletRequest request, HttpServletResponse response) {
-        CookieUtil.remove(request, response, Conf.SSO_SESSIONID);
+        CookieUtil.remove(request, response, Conf.ACCESS_TOKEN);
     }
 
     /**
@@ -111,7 +88,7 @@ public class SsoWebLoginHelper {
      * @return
      */
     public static String getSessionIdByCookie(HttpServletRequest request) {
-        String cookieSessionId = CookieUtil.getValue(request, Conf.SSO_SESSIONID);
+        String cookieSessionId = CookieUtil.getValue(request, Conf.ACCESS_TOKEN);
         return cookieSessionId;
     }
 

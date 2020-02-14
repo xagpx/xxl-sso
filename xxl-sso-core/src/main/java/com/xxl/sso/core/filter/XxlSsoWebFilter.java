@@ -66,7 +66,6 @@ public class XxlSsoWebFilter extends HttpServlet implements Filter {
                 && logoutPath.equals(servletPath)) {
 
             // remove cookie
-            SsoWebLoginHelper.removeSessionIdByCookie(req, res);
 
             // redirect logout
             String logoutPageUrl = ssoServer.concat(Conf.SSO_LOGOUT);
@@ -74,9 +73,9 @@ public class XxlSsoWebFilter extends HttpServlet implements Filter {
 
             return;
         }
-
+        String access_token = request.getParameter(Conf.ACCESS_TOKEN);
         // valid login user, cookie + redirect
-        XxlSsoUser xxlUser = SsoWebLoginHelper.loginCheck(req, res);
+        XxlSsoUser xxlUser = SsoWebLoginHelper.loginCheck(access_token);
 
         // valid login fail
         if (xxlUser == null) {

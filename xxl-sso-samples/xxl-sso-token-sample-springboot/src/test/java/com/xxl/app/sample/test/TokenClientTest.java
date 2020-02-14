@@ -7,6 +7,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,35 +22,35 @@ import java.util.Map;
 public class TokenClientTest {
 	private static Logger logger = LoggerFactory.getLogger(TokenClientTest.class);
 
-	public static String ssoServer = "http://xxlssoserver.com:8080/xxl-sso-server";
+	public static String ssoServer = "http://127.0.0.1:8080/xxl-sso-server";
 
-	public static String client01 = "http://xxlssoclient1.com:8082/xxl-sso-token-sample-springboot/";
-	public static String client02 = "http://xxlssoclient2.com:8082/xxl-sso-token-sample-springboot/";
-
+	public static String client01 = "http://127.0.0.1:8082/xxl-sso-token-sample-springboot/";
+	public static String client02 = "http://127.0.0.1:8082/xxl-sso-token-sample-springboot/";
+	
 	@Test
 	public void test() throws Exception {
-
 		// 登录：获取 sso sessionId
 		String sessionId = loginTest();
 		Assert.assertNotNull(sessionId);
-
+		
+      
 		// 登陆状态校验
 		String username = logincheckTest(sessionId);
 		Assert.assertNotNull(username);
 
 		clientApiRequestTest(client01, sessionId);
-		clientApiRequestTest(client02, sessionId);
+//		clientApiRequestTest(client02, sessionId);
 
-		// 注销：销毁 sso sessionId
+//		// 注销：销毁 sso sessionId
 		boolean loginoutResult = logoutTest(sessionId);
 		Assert.assertTrue(loginoutResult);
-
-		// 登陆状态校验
+//
+//		// 登陆状态校验
 		username = logincheckTest(sessionId);
 		Assert.assertNull(username);
-
+//
 		clientApiRequestTest(client01, sessionId);
-		clientApiRequestTest(client02, sessionId);
+//		clientApiRequestTest(client02, sessionId);
 	}
 
 	/**
@@ -58,12 +62,10 @@ public class TokenClientTest {
 	private void clientApiRequestTest(String clientApiUrl, String sessionId) throws IOException {
 
 		Map<String, String> headerParam = new HashMap<>();
-		headerParam.put(Conf.SSO_SESSIONID, sessionId);
-
+		headerParam.put(Conf.ACCESS_TOKEN, sessionId);
 
 		String resultJson = HttpClientUtil.post(clientApiUrl, null, headerParam);
 		Map<String, Object> loginResult = new ObjectMapper().readValue(resultJson, Map.class);
-
 		int code = (int) loginResult.get("code");
 		if (code == 200) {
 
@@ -87,11 +89,11 @@ public class TokenClientTest {
 	private String loginTest() throws IOException {
 		// login url
 		String loginUrl = ssoServer + "/app/login";
-
 		// login param
 		Map<String, String> loginParam = new HashMap<>();
 		loginParam.put("username", "user");
 		loginParam.put("password", "123456");
+		loginParam.put("ip", "127.0.0.1");
 
 		String loginResultJson = HttpClientUtil.post(loginUrl, loginParam, null);
 		Map<String, Object> loginResult = new ObjectMapper().readValue(loginResultJson, Map.class);

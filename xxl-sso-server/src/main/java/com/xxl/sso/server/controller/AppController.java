@@ -1,11 +1,11 @@
 package com.xxl.sso.server.controller;
 
 import com.xxl.sso.core.login.SsoTokenLoginHelper;
-import com.xxl.sso.core.store.SsoLoginStore;
 import com.xxl.sso.core.user.XxlSsoUser;
-import com.xxl.sso.core.store.SsoSessionIdHelper;
 import com.xxl.sso.server.core.model.UserInfo;
 import com.xxl.sso.server.core.result.ReturnT;
+import com.xxl.sso.server.core.store.SsoLoginStore;
+import com.xxl.sso.server.core.util.JwtTokenUtil;
 import com.xxl.sso.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,14 +36,13 @@ public class AppController {
      */
     @RequestMapping("/login")
     @ResponseBody
-    public ReturnT<String> login(String username, String password) {
+    public ReturnT<String> login(String username, String password,String ip) {
 
         // valid login
         ReturnT<UserInfo> result = userService.findUser(username, password);
         if (result.getCode() != ReturnT.SUCCESS_CODE) {
             return new ReturnT<String>(result.getCode(), result.getMsg());
         }
-
         // 1、make xxl-sso user
         XxlSsoUser xxlUser = new XxlSsoUser();
         xxlUser.setUserid(String.valueOf(result.getData().getUserid()));
@@ -51,10 +50,11 @@ public class AppController {
         xxlUser.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
         xxlUser.setExpireMinute(SsoLoginStore.getRedisExpireMinute());
         xxlUser.setExpireFreshTime(System.currentTimeMillis());
+        xxlUser.setIp(ip);
 
 
         // 2、generate sessionId + storeKey
-        String sessionId = SsoSessionIdHelper.makeSessionId(xxlUser);
+        String sessionId = JwtTokenUtil.createJWT(xxlUser);
 
         // 3、login, store storeKey
         SsoTokenLoginHelper.login(sessionId, xxlUser);
@@ -87,7 +87,6 @@ public class AppController {
     @RequestMapping("/logincheck")
     @ResponseBody
     public ReturnT<XxlSsoUser> logincheck(String sessionId) {
-
         // logout
         XxlSsoUser xxlUser = SsoTokenLoginHelper.loginCheck(sessionId);
         if (xxlUser == null) {

@@ -1,11 +1,12 @@
 package com.xxl.sso.server.config;
 
-import com.xxl.sso.core.store.SsoLoginStore;
-import com.xxl.sso.core.util.JedisUtil;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import com.xxl.sso.server.core.store.SsoLoginStore;
+import com.xxl.sso.server.core.util.JedisUtil;
 
 /**
  * @author xuxueli 2018-04-03 20:41:07

@@ -75,7 +75,10 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
                 <li class="header">导航</li>
-                <li class="nav-click <#if pageName == "help">active</#if>" ><a href="${request.contextPath}/"><i class="fa fa-circle-o text-gray"></i><span>使用教程</span></a></li>
+                <li class="nav-click <#if pageName == "help">active</#if>" >
+                <a href="${request.contextPath}/"><i class="fa fa-circle-o text-gray"></i><span>使用教程</span></a></li>
+                 <li class="nav-click <#if pageName == "help">active</#if>" >
+                <a href="${request.contextPath}/?access_token=${access_token}"><i class="fa fa-circle-o text-gray"></i><span>使用教程</span></a></li>
             </ul>
         </section>
         <!-- /.sidebar -->

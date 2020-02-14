@@ -3,10 +3,13 @@ package com.xxl.sso.sample.controller;
 import com.xxl.sso.core.conf.Conf;
 import com.xxl.sso.core.entity.ReturnT;
 import com.xxl.sso.core.user.XxlSsoUser;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,10 +18,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Controller
 public class IndexController {
-
+	@Autowired
+	public RestTemplate restTemplate;
+	
     @RequestMapping("/")
     public String index(Model model, HttpServletRequest request) {
-
         XxlSsoUser xxlUser = (XxlSsoUser) request.getAttribute(Conf.SSO_USER);
         model.addAttribute("xxlUser", xxlUser);
         return "index";

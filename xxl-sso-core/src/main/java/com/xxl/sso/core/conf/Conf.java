@@ -12,7 +12,10 @@ public class Conf {
     /**
      * sso sessionid, between browser and sso-server (web + token client)
      */
-    public static final String SSO_SESSIONID = "xxl_sso_sessionid";
+//    public static final String SSO_SESSIONID = "xxl_sso_sessionid";
+    
+    
+    public static final String ACCESS_TOKEN = "access_token";
 
 
     /**
@@ -50,7 +53,9 @@ public class Conf {
      * excluded paths, client relatice path, include path can be set by "filter-mapping"
      */
     public static final String SSO_EXCLUDED_PATHS = "SSO_EXCLUDED_PATHS";
-
+    
+    public static final String SSO_TOKENCHECK_ADDESS = "SSO_TOKENCHECK_ADDESS";
+    public static final String SSO_TOKENLOGOUT_ADDESS = "SSO_TOKENLOGOUT_ADDESS";
 
     /**
      * login fail result

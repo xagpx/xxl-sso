@@ -41,13 +41,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+			<dependency>
+			    <groupId>com.alibaba</groupId>
+			    <artifactId>fastjson</artifactId>
+			    <version>1.2.62</version>
+			</dependency>
+        
         <!-- sso core -->
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-sso-core</artifactId>
             <version>${parent.version}</version>
-        </dependency>
+        </dependency> 
 
         <!-- devtools -->
         <dependency>

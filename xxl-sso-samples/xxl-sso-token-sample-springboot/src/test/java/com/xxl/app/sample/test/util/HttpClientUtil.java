@@ -46,6 +46,7 @@ public class HttpClientUtil {
 			// headers
 			if (headers!=null && headers.size()>0) {
 				for (Map.Entry<String, String> headerItem: headers.entrySet()) {
+					logger.info(headerItem.getKey()+"==="+headerItem.getValue());
 					httpPost.setHeader(headerItem.getKey(), headerItem.getValue());
 				}
 			}

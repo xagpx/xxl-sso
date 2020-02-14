@@ -24,14 +24,12 @@ public class XxlSsoTokenFilter extends HttpServlet implements Filter {
 
     private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    private String ssoServer;
     private String logoutPath;
     private String excludedPaths;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 
-        ssoServer = filterConfig.getInitParameter(Conf.SSO_SERVER);
         logoutPath = filterConfig.getInitParameter(Conf.SSO_LOGOUT_PATH);
         excludedPaths = filterConfig.getInitParameter(Conf.SSO_EXCLUDED_PATHS);
 

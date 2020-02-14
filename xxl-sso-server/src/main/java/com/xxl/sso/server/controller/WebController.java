@@ -1,12 +1,12 @@
 package com.xxl.sso.server.controller;
-
 import com.xxl.sso.core.conf.Conf;
 import com.xxl.sso.core.login.SsoWebLoginHelper;
-import com.xxl.sso.core.store.SsoLoginStore;
 import com.xxl.sso.core.user.XxlSsoUser;
-import com.xxl.sso.core.store.SsoSessionIdHelper;
+import com.xxl.sso.core.util.StringUtils;
 import com.xxl.sso.server.core.model.UserInfo;
 import com.xxl.sso.server.core.result.ReturnT;
+import com.xxl.sso.server.core.store.SsoLoginStore;
+import com.xxl.sso.server.core.util.JwtTokenUtil;
 import com.xxl.sso.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,12 +33,15 @@ public class WebController {
     public String index(Model model, HttpServletRequest request, HttpServletResponse response) {
 
         // login check
-        XxlSsoUser xxlUser = SsoWebLoginHelper.loginCheck(request, response);
+    	String access_token = request.getParameter(Conf.ACCESS_TOKEN);
+        XxlSsoUser xxlUser = SsoWebLoginHelper.loginCheck(access_token);
 
         if (xxlUser == null) {
-            return "redirect:/login";
+            return "login";
+//            return "redirect:/login";
         } else {
             model.addAttribute("xxlUser", xxlUser);
+            model.addAttribute(Conf.ACCESS_TOKEN, access_token);
             return "index";
         }
     }
@@ -54,17 +57,15 @@ public class WebController {
     public String login(Model model, HttpServletRequest request, HttpServletResponse response) {
 
         // login check
-        XxlSsoUser xxlUser = SsoWebLoginHelper.loginCheck(request, response);
+    	String token = request.getParameter(Conf.ACCESS_TOKEN);
+        XxlSsoUser xxlUser = SsoWebLoginHelper.loginCheck(token);
 
         if (xxlUser != null) {
-
             // success redirect
             String redirectUrl = request.getParameter(Conf.REDIRECT_URL);
             if (redirectUrl!=null && redirectUrl.trim().length()>0) {
-
-                String sessionId = SsoWebLoginHelper.getSessionIdByCookie(request);
-                String redirectUrlFinal = redirectUrl + "?" + Conf.SSO_SESSIONID + "=" + sessionId;;
-
+            	String access_token = request.getParameter(Conf.ACCESS_TOKEN);
+            	String redirectUrlFinal = redirectUrl + "?" + Conf.ACCESS_TOKEN + "=" + access_token;;
                 return "redirect:" + redirectUrlFinal;
             } else {
                 return "redirect:/";
@@ -101,9 +102,10 @@ public class WebController {
             redirectAttributes.addAttribute("errorMsg", result.getMsg());
 
             redirectAttributes.addAttribute(Conf.REDIRECT_URL, request.getParameter(Conf.REDIRECT_URL));
-            return "redirect:/login";
+//            return "redirect:/login";
+            return "login";
         }
-
+        String ip=StringUtils.getIpAddr(request);
         // 1、make xxl-sso user
         XxlSsoUser xxlUser = new XxlSsoUser();
         xxlUser.setUserid(String.valueOf(result.getData().getUserid()));
@@ -111,21 +113,19 @@ public class WebController {
         xxlUser.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
         xxlUser.setExpireMinute(SsoLoginStore.getRedisExpireMinute());
         xxlUser.setExpireFreshTime(System.currentTimeMillis());
+        xxlUser.setIp(ip);
 
+        String sessionId = JwtTokenUtil.createJWT(xxlUser);
 
-        // 2、make session id
-        String sessionId = SsoSessionIdHelper.makeSessionId(xxlUser);
-
-        // 3、login, store storeKey + cookie sessionId
         SsoWebLoginHelper.login(response, sessionId, xxlUser, ifRem);
 
         // 4、return, redirect sessionId
         String redirectUrl = request.getParameter(Conf.REDIRECT_URL);
         if (redirectUrl!=null && redirectUrl.trim().length()>0) {
-            String redirectUrlFinal = redirectUrl + "?" + Conf.SSO_SESSIONID + "=" + sessionId;
+            String redirectUrlFinal = redirectUrl + "?"+ Conf.ACCESS_TOKEN + "=" + sessionId;
             return "redirect:" + redirectUrlFinal;
         } else {
-            return "redirect:/";
+            return "redirect:/?"+ Conf.ACCESS_TOKEN + "=" + sessionId;
         }
 
     }
@@ -139,13 +139,12 @@ public class WebController {
      */
     @RequestMapping(Conf.SSO_LOGOUT)
     public String logout(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
-
+    	String sessionId = request.getHeader(Conf.ACCESS_TOKEN);
         // logout
-        SsoWebLoginHelper.logout(request, response);
+        SsoWebLoginHelper.logout(sessionId);
 
         redirectAttributes.addAttribute(Conf.REDIRECT_URL, request.getParameter(Conf.REDIRECT_URL));
-        return "redirect:/login";
+//        return "redirect:/login";
+        return "login";
     }
-
-
 }
